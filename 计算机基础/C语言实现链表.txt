@@ -1,0 +1,128 @@
+//
+//  main.c
+//  study for c
+//
+//  Created by bruce on 2020-04-03 13:10:18
+//  Copyright © 2020 bruce. All rights reserved.
+//
+
+#include<stdio.h>
+#include <stdlib.h>
+
+
+typedef struct LNode{
+    int data;
+    struct LNode *next;
+}LNode,*PLNODE;
+
+/*
+ 遍历链表，传入头指针即可。
+ 这里要遍历的第一个元素是p=head->next,只要p不为空，就可以输出p的data。
+ */
+void traverse_linkedlist(LNode *head);
+
+/*
+创建链表，传入头指针head、想创建的链表长度length。
+这里需要注意: 创建一个新的指针，这个指针永远指向链表的最后一个结点，所以每创建一个结点挂在这个指针后面即可。
+由于头结点的data值是浪费的，所以我把头结点的data用来存放链表长度
+*/
+void create_linkedlist(LNode *head, int length);
+
+/*
+插入元素，需要传入头指针head、插入的位置(从0开始的索引)、插入的值
+这里我们要先判断一下插入位置，不能超过链表长度 也 不能小于0。
+然后再执行插入操作
+*/
+void insert_element(LNode *head, int index, int data);
+
+/*
+删除元素，需要传入头指针head、删除元素的位置(从0开始的索引)
+这里我们也要先判断删除的位置，不能超过 链表长度-1 也 不能小于0。
+这里和插入元素的区别就是:插入可以插入位置到最大索引+1,删除的位置只能到最大索引
+然后再执行删除操作
+*/
+void delect_element(LNode *head, int index);
+
+
+int main(){
+    LNode * head = (LNode *)malloc(sizeof(LNode));
+    head->data = 0;
+    head->next = NULL;
+    create_linkedlist(head,3);
+    insert_element(head, 1, 66);
+    delect_element(head, 3);
+    traverse_linkedlist(head);
+}
+    
+void create_linkedlist(LNode *head, int length){
+    LNode * temp = NULL; // temp 永远指向链表最后一个结点
+    temp = head;
+    head->data = length;
+    for (int i=0;i<length;i++){
+        int data;
+        int x = 0;
+        printf("请输入索引为%d的结点值,输入int类型的数:\n",i);
+        // 这里判断一下输入类型，输入错误类型给予提示并重新输入。
+        while (x==0) {
+            fflush(stdin);
+            x = scanf("%d",&data);
+            if (x==0)
+                printf("输入类型错误，请输入int类型\n");
+        }
+        
+        LNode * Node = (LNode *)malloc(sizeof(LNode)); // 为结点分配空间
+        temp->next = Node; // 把新结点挂在temp上
+        Node->data = data; // 更新结点值
+        Node->next = NULL; // 最后一个结点的next为NULL
+        temp = Node; // 将tempa指向最后一个结点
+    }
+}
+
+void insert_element(LNode *head, int index, int data){
+    if (index<0 || index>head->data){
+        printf("您的插入操作 超出索引范围\n");
+        return;
+    }
+        
+    LNode * temp = head; // 只要是遍历链表，就需要一个临时指针，指向当前遍历的位置。
+    // 比如插入位置索引是2,那么下面这个循环就让temp指向索引为1的元素。
+    for (int i=0;i<index;i++)
+        temp = temp->next;
+    
+    LNode * Node = (LNode *)malloc(sizeof(LNode));
+    Node->next = temp->next;
+    Node->data = data;
+    temp->next = Node;
+    head->data++; // 更新链表长度
+}
+
+void traverse_linkedlist(LNode *head){
+    LNode *p = head->next;
+    int i = 0;
+    while (p != NULL) {
+        printf("索引为%d的结点的值为%d\n",i,p->data);
+        p = p->next;
+        i++;
+    }
+        
+}
+
+void delect_element(LNode *head, int index){
+    if (index<0 || index>head->data-1){
+        printf("您删除的元素超出了索引范围，请重新选择删除位置\n");
+        return;
+    }
+    
+    LNode * temp = head;
+    for (int i=0;i<index;i++)
+        temp = temp->next;
+    LNode * p = temp->next; // 要再定义一个指针临时存放要删除的结点
+    temp->next = temp->next->next;
+    free(p); // 释放删除结点的存储空间
+    p = NULL;
+    head->data--;
+}
+
+
+
+
